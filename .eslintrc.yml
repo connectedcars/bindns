@@ -8,6 +8,8 @@ extends:
 parserOptions:
   ecmaVersion: 8
 rules:
+  strict:
+    - error
   no-console: off
   camelcase: off
   eqeqeq:

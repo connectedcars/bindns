@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Tests ability of server and client to handle various types of requests by
  * proxying a list of dig commands to another server.

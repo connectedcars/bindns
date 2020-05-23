@@ -1,3 +1,5 @@
+"use strict";
+
 const ndns = require("../lib/ndns");
 const server = new ndns.Server("udp4");
 const client = new ndns.Client("udp4");
