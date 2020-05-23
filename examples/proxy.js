@@ -7,7 +7,8 @@ const REMOTE_HOST = "8.8.8.8";
 const REMOTE_PORT = 53;
 
 server.on("request", (req, res) => {
-    const c_req = client.request(REMOTE_PORT, REMOTE_HOST, c_res => {
+    const c_req = client.request(REMOTE_PORT, REMOTE_HOST, (err, c_res) => {
+        if (err) throw err;
         res.header.aa = c_res.header.aa;
         res.header.rcode = c_res.header.rcode;
 
