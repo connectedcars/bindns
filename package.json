@@ -1,10 +1,13 @@
 {
   "name": "bindns",
   "description": "Fast DNS library, server and client for Node.js based on libbind-6",
-  "keywords": ["dns", "libbind"],
+  "keywords": [
+    "dns",
+    "libbind"
+  ],
   "bugs": "https://github.com/primitybio/bindns/issues",
   "license": "ISC",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/primitybio/bindns",
   "repository": {
     "type": "git",
