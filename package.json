@@ -1,17 +1,14 @@
 {
-  "name": "bindns",
+  "name": "@connectedcars/bindns",
   "description": "Fast DNS library, server and client for Node.js based on libbind-6",
-  "keywords": [
-    "dns",
-    "libbind"
-  ],
-  "bugs": "https://github.com/connectedcars/bindns/issues",
+  "keywords": ["dns", "libbind"],
+  "bugs": "https://github.com/connectedcars/bindns/issues", 
   "license": "ISC",
   "version": "0.2.2",
   "homepage": "https://github.com/connectedcars/bindns",
   "repository": {
     "type": "git",
-    "url": "https://github.com/primitybio/bindns.git"
+    "url": "https://github.com/connectedcars/bindns.git"
   },
   "author": "Zach Bjornson <zbbjornson@gmail.com> (https://github.com/zbjornson)",
   "directories": {
