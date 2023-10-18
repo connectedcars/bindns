@@ -9,7 +9,7 @@ GHz i7-6700k CPU), and given that it's a port of libbind, hopefully it's low on
 bugs.
 
 See **history** at the bottom for info on all of the forks of `ndns` and how
-this library came to be.
+this library came to be. See [CHANGELOG.md](CHANGELOG.md) for recent changes.
 
 This module isn't published to npm yet, so install it from github:
 `yarn add primitybio/bindns`.
@@ -94,7 +94,7 @@ ServerRequest {
 ```
 
 There are several **enums** that you need to construct a response, including the
-common ones listed below. See lib/nameser.js for the full list.
+common ones listed below. See [lib/nameser.js] for the full list.
 
 * `ns_rcode` - Response codes
 * `ns_sect` - Section constants
@@ -103,17 +103,22 @@ common ones listed below. See lib/nameser.js for the full list.
   corresponding string, use `ns_type_str(ns_type_t)`.
 * `ns_flag` - Flag constants
 
-### ndns.Server
+### `Server`
 
-#### Constructor
+> ```ts
+> new Server(type: "udp4"|"udp6", listener?: (req, res) => void)
+> ```
 
-`new Server(type: "udp4"|"udp6"[, listener: (req, res) => void])`
-
-`listener` is an optional listener for the `"request"` event.
+* `listener` - Optional listener for the `"request"` event.
 
 #### Event: "request"
 
-`function (request: ServerRequest, response: ServerResponse) {}`
+> ```ts
+> function (request: ServerRequest, response: ServerResponse) {}
+> ```
+
+Emitted when the server receives a request. Add your response to the `response`
+object.
 
 #### Event: "listening"
 
@@ -123,18 +128,18 @@ Inherited from `dgram.Socket`.
 
 Inherited from `dgram.Socket`.
 
-#### Evenet: "error"
+#### Event: "error"
 
 Inherited from `dgram.Socket`.
 
-### ServerRequest
+### `ServerRequest`
 
 This object is created internally by a DNS server as the result of a DNS query,
 not by the user, and passed as the first argument to a 'request' listener. Note:
 `answer`, `authoritative` and `additional` properties are present, but are
 meaningless in queries.
 
-#### request.header
+#### `header`
 
 This object is an instance of `MessageHeader`. Properties:
 
@@ -153,16 +158,16 @@ This object is an instance of `MessageHeader`. Properties:
   questions, answers, name servers and additional records, respectively. Only
   `qdcount` should be non-zero for queries.
 
-#### request.question
+#### `question`
 
 An array of `MessageQuestion`s.
 
-### ServerResponse
+### `ServerResponse`
 
 This object is created internally by a DNS server, not by the user. It is passed
 as the second argument to the 'request' event.
 
-#### response.header
+#### `header`
 
 This object is an instance of `MessageHeader`. Properties:
 
@@ -182,36 +187,154 @@ This object is an instance of `MessageHeader`. Properties:
   questions, answers, name servers and additional records, respectively. These
   are incremented when you call `response.addRR()`.
 
-#### response.addRR(sect, name, type, klass, ttl, ...info)
-
-Adds an RR to the response.
-
-* @param {number} sect An ns_sect value.
-* @param {string} name
-* @param {number} type An ns_type value.
-* @param {number} klass An ns_class value.
-* @param {number} ttl
-* @param {Array<string>} info
-
-#### response.answer
+#### `answer`
 
 An array of `MessageRR`s.
 
-#### response.authoritative
+#### `authoritative`
 
 An array of `MessageRR`s.
 
-#### response.additional
+#### `additional`
 
 An array of `MessageRR`s.
+
+#### `addRR()`
+
+Adds an RR to the message.
+
+> ```ts
+> res.addRR(sect: number, name: string, type: number, klass: number, ttl: number, ...info: string[])
+> ```
+
+* `sect` - An `ns_sect` value.
+* `name` - Hostname.
+* `type` - An `ns_type` value.
+* `klass` - An `ns_class` value.
+* `ttl` - TTL.
+* `info` - Response information (e.g. IP addresses).
+
+#### `send()`
+
+Sends the response.
+
+### `Client`
+
+Client for making DNS lookup requests
+
+See [examples/simple-client.js](examples/simple-client.js) for an example usage.
+
+> ```ts
+> new Client(type: "udp4"|"udp6" = "udp4", responseListener?: (res: ClientResponse) => void)
+> ```
+
+* `type` - UDP socket type.
+* `responseListener` - Optional listener for "response" events.
+
+#### Event: "response"
+
+> ```ts
+> on("response", (err: Error|null, res?: ClientResponse) => {})
+> ```
+
+Emitted on every response. You do not need to listen to this if you add
+response listeners to your requests.
+
+#### Event: "error"
+
+> ```ts
+> on("error", (err: Error) => {})
+> ```
+
+Emitted when a request that does not have a response listener times out, or when the underlying socket has an error.
+
+#### `request()`
+
+Creates a new `ClientRequest`.
+
+> ```ts
+> client.request(port: number, address: string, cb: RequestCallback): ClientRequest;
+> client.request(options: RequestOptions, cb: RequestCallback): ClientRequest;
+> ```
+
+* `port` - Port of DNS server to query.
+* `address` - Address of DNS server to query.
+* `cb` - Request callback containing response.
+
+#### `bind()`
+
+Binds the socket so it can listen for responses. This must be called
+before sending a request.
+
+> ```ts
+> client.bind(port?: number, address?: string)
+> ```
+
+* `port` - If not specified or if 0, will bind a random port.
+* `address` - If not specified, will listen on all addresses.
+
+#### `close()`
+
+Closes the client. You must call this to allow Node.js to exit.
+
+> ```ts
+> client.close()
+> ```
 
 ### ClientRequest
 
 This object is created by `client.request(port, host, callback)`.
 
-#### request.addQuestion(name, type, class)
+#### `header`
 
-Sets the question.
+This object is an instance of `MessageHeader`. Properties:
+
+* `id` (read-only) ID of query.
+* `qr` (read-only) Query/response flag.
+* `opcode` Operation code (one of `ns_opcode`).
+* `aa` (N/A for queries) Authoritative answer.
+* `tc` (N/A for queries) Truncation flag.
+* `rd` Recursion desired. It is typical to set this flag.
+* `ra` (N/A for queries) Recursion available.
+* `z` (read-only) Three bits set to zero.
+* `ad` (N/A for queries) Authentic data (DNSSEC).
+* `cd` (read-only) Checking disabled (DNSSEC).
+* `rcode` (N/A for queries) Response code (one of `ns_rcode`).
+* `qdcount`, `ancount`, `nscount` and `arcount` (read-only) The number of
+  questions, answers, name servers and additional records, respectively. Only
+  `qdcount` should be non-zero for queries.
+
+#### `addQuestion()`
+
+Adds a question.
+
+> ```ts
+> req.addQuestion(qname: string, qtype: number, qclass?: number)
+> ```
+
+* `qname` - Query hostname.
+* `qtype` - Query type. Must be a value from `bindns.ns_type`.
+* `qclass` - Optional query class. Must be a value from `bindns.ns_class`.
+  Defaults to `in`.
+
+#### `send()`
+
+Sends the request.
+
+### Utilities
+
+#### `getRcodeError()`
+
+Returns a descriptive error for the `RCODE` of the response. Only those codes in
+RFC1035 and RFC6891 (EDNS) are handled. If the RCODE is 0 (no error), returns
+`undefined`.
+
+`DnsError` extends `Error` and includes a `code` property that will not change
+across semver minor versions.
+
+> ```ts
+> getRcodeError(response: ClientResponse): DnsError
+> ```
 
 ## Benchmarks and Other Libraries
 
