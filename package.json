@@ -7,7 +7,7 @@
   ],
   "bugs": "https://github.com/connectedcars/bindns/issues",
   "license": "ISC",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "homepage": "https://github.com/connectedcars/bindns",
   "repository": {
     "type": "git",
